@@ -82,7 +82,7 @@ func (h *Handler) GetTodo(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("[%s] %s %s", r.Method, r.URL.Path, r.RemoteAddr)
 
-	id, err := extractID(r.URL.Path)
+	id, err := extractID(r)
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
@@ -111,7 +111,7 @@ func (h *Handler) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("[%s] %s %s", r.Method, r.URL.Path, r.RemoteAddr)
 
-	id, err := extractID(r.URL.Path)
+	id, err := extractID(r)
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
@@ -155,7 +155,7 @@ func (h *Handler) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("[%s] %s %s", r.Method, r.URL.Path, r.RemoteAddr)
 
-	id, err := extractID(r.URL.Path)
+	id, err := extractID(r)
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
@@ -176,14 +176,17 @@ func (h *Handler) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func extractID(path string) (int, error) {
-	if len(path) < 8 || path[:7] != "/todos/" {
-		return 0, &strconv.NumError{Func: "Atoi", Num: path, Err: strconv.ErrSyntax}
+func extractID(r *http.Request) (int, error) {
+	idStr := r.PathValue("id")
+	if idStr == "" {
+		return 0, &strconv.NumError{Func: "Atoi", Num: "", Err: strconv.ErrSyntax}
 	}
-	idStr := path[7:]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return 0, err
+	}
+	if id <= 0 {
+		return 0, &strconv.NumError{Func: "Atoi", Num: idStr, Err: strconv.ErrSyntax}
 	}
 	return id, nil
 }

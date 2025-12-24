@@ -122,6 +122,8 @@ func TestHandler_GetTodos(t *testing.T) {
 func TestHandler_GetTodo(t *testing.T) {
 	store := todo.NewStore()
 	h := NewHandler(store)
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /todos/{id}", h.GetTodo)
 
 	created, _ := store.Create(&todo.Todo{Title: "Test Todo"})
 
@@ -129,7 +131,7 @@ func TestHandler_GetTodo(t *testing.T) {
 		req := httptest.NewRequest("GET", "/todos/1", nil)
 		w := httptest.NewRecorder()
 
-		h.GetTodo(w, req)
+		mux.ServeHTTP(w, req)
 
 		if w.Code != http.StatusOK {
 			t.Errorf("Expected status %d, got %d", http.StatusOK, w.Code)
@@ -149,7 +151,7 @@ func TestHandler_GetTodo(t *testing.T) {
 		req := httptest.NewRequest("GET", "/todos/999", nil)
 		w := httptest.NewRecorder()
 
-		h.GetTodo(w, req)
+		mux.ServeHTTP(w, req)
 
 		if w.Code != http.StatusNotFound {
 			t.Errorf("Expected status %d, got %d", http.StatusNotFound, w.Code)
@@ -160,6 +162,8 @@ func TestHandler_GetTodo(t *testing.T) {
 func TestHandler_UpdateTodo(t *testing.T) {
 	store := todo.NewStore()
 	h := NewHandler(store)
+	mux := http.NewServeMux()
+	mux.HandleFunc("PUT /todos/{id}", h.UpdateTodo)
 
 	store.Create(&todo.Todo{Title: "Original Title"})
 
@@ -175,7 +179,7 @@ func TestHandler_UpdateTodo(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 
-		h.UpdateTodo(w, req)
+		mux.ServeHTTP(w, req)
 
 		if w.Code != http.StatusOK {
 			t.Errorf("Expected status %d, got %d", http.StatusOK, w.Code)
@@ -199,7 +203,7 @@ func TestHandler_UpdateTodo(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 
-		h.UpdateTodo(w, req)
+		mux.ServeHTTP(w, req)
 
 		if w.Code != http.StatusNotFound {
 			t.Errorf("Expected status %d, got %d", http.StatusNotFound, w.Code)
@@ -214,7 +218,7 @@ func TestHandler_UpdateTodo(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 
-		h.UpdateTodo(w, req)
+		mux.ServeHTTP(w, req)
 
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("Expected status %d, got %d", http.StatusBadRequest, w.Code)
@@ -225,6 +229,8 @@ func TestHandler_UpdateTodo(t *testing.T) {
 func TestHandler_DeleteTodo(t *testing.T) {
 	store := todo.NewStore()
 	h := NewHandler(store)
+	mux := http.NewServeMux()
+	mux.HandleFunc("DELETE /todos/{id}", h.DeleteTodo)
 
 	created, _ := store.Create(&todo.Todo{Title: "Test Todo"})
 
@@ -232,7 +238,7 @@ func TestHandler_DeleteTodo(t *testing.T) {
 		req := httptest.NewRequest("DELETE", "/todos/1", nil)
 		w := httptest.NewRecorder()
 
-		h.DeleteTodo(w, req)
+		mux.ServeHTTP(w, req)
 
 		if w.Code != http.StatusNoContent {
 			t.Errorf("Expected status %d, got %d", http.StatusNoContent, w.Code)
@@ -248,7 +254,7 @@ func TestHandler_DeleteTodo(t *testing.T) {
 		req := httptest.NewRequest("DELETE", "/todos/999", nil)
 		w := httptest.NewRecorder()
 
-		h.DeleteTodo(w, req)
+		mux.ServeHTTP(w, req)
 
 		if w.Code != http.StatusNotFound {
 			t.Errorf("Expected status %d, got %d", http.StatusNotFound, w.Code)
