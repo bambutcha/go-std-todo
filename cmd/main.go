@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"go-std-todo/internal/api"
 	"go-std-todo/internal/config"
 	"go-std-todo/internal/handler"
 	"go-std-todo/internal/todo"
@@ -29,17 +30,11 @@ func main() {
 
 	store := todo.NewStore()
 	h := handler.NewHandler(store)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /todos", h.CreateTodo)
-	mux.HandleFunc("GET /todos", h.GetTodos)
-	mux.HandleFunc("GET /todos/", h.GetTodo)
-	mux.HandleFunc("PUT /todos/", h.UpdateTodo)
-	mux.HandleFunc("DELETE /todos/", h.DeleteTodo)
+	router := api.NewRouter(h)
 
 	server := &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: router,
 	}
 
 	go func() {
@@ -64,4 +59,3 @@ func main() {
 
 	log.Println("Server exited")
 }
-
