@@ -97,4 +97,3 @@ func (s *Store) Delete(id int) error {
 	delete(s.todos, id)
 	return nil
 }
-
