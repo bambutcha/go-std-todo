@@ -43,6 +43,14 @@ docker build -t todo-server .
 docker run -p 8080:8080 todo-server
 ```
 
+Или через docker-compose (автоматически использует переменные из `.env`):
+
+```bash
+docker-compose up --build
+```
+
+Для изменения порта создайте `.env` файл с `PORT=3000`, и docker-compose автоматически использует его.
+
 ## API Endpoints
 
 - `POST /todos` - создать новую задачу
