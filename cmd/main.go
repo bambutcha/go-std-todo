@@ -1,0 +1,54 @@
+package main
+
+import (
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"go-std-todo/internal/handler"
+	"go-std-todo/internal/todo"
+)
+
+func main() {
+	store := todo.NewStore()
+	h := handler.NewHandler(store)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /todos", h.CreateTodo)
+	mux.HandleFunc("GET /todos", h.GetTodos)
+	mux.HandleFunc("GET /todos/", h.GetTodo)
+	mux.HandleFunc("PUT /todos/", h.UpdateTodo)
+	mux.HandleFunc("DELETE /todos/", h.DeleteTodo)
+
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
+	}
+
+	go func() {
+		log.Println("Server starting on :8080")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed to start: %v", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server exited")
+}
+
