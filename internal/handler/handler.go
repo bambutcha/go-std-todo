@@ -187,4 +187,3 @@ func extractID(path string) (int, error) {
 	}
 	return id, nil
 }
-

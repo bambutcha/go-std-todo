@@ -30,4 +30,3 @@ func LoadEnv(filename string) error {
 
 	return scanner.Err()
 }
-
