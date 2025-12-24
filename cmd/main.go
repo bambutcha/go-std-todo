@@ -14,6 +14,12 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	addr := ":" + port
+
 	store := todo.NewStore()
 	h := handler.NewHandler(store)
 
@@ -25,12 +31,12 @@ func main() {
 	mux.HandleFunc("DELETE /todos/", h.DeleteTodo)
 
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    addr,
 		Handler: mux,
 	}
 
 	go func() {
-		log.Println("Server starting on :8080")
+		log.Printf("Server starting on %s", addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server failed to start: %v", err)
 		}
