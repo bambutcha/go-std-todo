@@ -9,11 +9,18 @@ import (
 	"syscall"
 	"time"
 
+	"go-std-todo/internal/config"
 	"go-std-todo/internal/handler"
 	"go-std-todo/internal/todo"
 )
 
 func main() {
+	if _, err := os.Stat(".env"); err == nil {
+		if err := config.LoadEnv(".env"); err != nil {
+			log.Printf("Warning: failed to load .env file: %v", err)
+		}
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
